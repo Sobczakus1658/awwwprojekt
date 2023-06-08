@@ -1,0 +1,11 @@
+:root {
+	--kolor-pasku: rgba(15, 10, 10, 0.514);
+	--kolor-wyboru: hsl(30, 2%, 40%);
+	--kolor-tekstu: hsl(240, 1%, 21%);
+	--kolor-fragmentu: hsl(30, 2%, 40%);
+	--kolor-paska-zakladek: rgba(15, 10, 10, 0.514);
+	--kolor-dane: rgb(75, 75, 75);
+	--kolor-zakladek: rgba(68, 64, 64, 0.514);
+	--kolor-hover: hsl(240, 7%, 71%);
+	--kolor-czcionki: white;
+}

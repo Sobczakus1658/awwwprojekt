@@ -1,0 +1,46 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--kolor-fragmentu);
+  }
+.centered-frame {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    border: 1px solid #ccc;
+    padding: 20px;
+  }
+  
+  .form-container {
+    max-width: 400px;
+    width: 100%;
+  }
+  
+  .form-group {
+    margin-bottom: 10px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 5px;
+  }
+  
+  .form-group button {
+    padding: 5px 10px;
+  }
+
+  .submit-button {
+  width: 110px;
+  margin-left: 40%;
+  border-right: solid;
+  border-color: var(--kolor-pasku);
+  background-color: var(--kolor-zakladek); 
+  font-size: 150%;
+}
