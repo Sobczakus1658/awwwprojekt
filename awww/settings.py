@@ -31,6 +31,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'awwwprojekt.up.railway.app']
 
+SDCC_PATH = '/usr/bin/sdcc'
+
+
 
 # Application definition
 
