@@ -28,7 +28,6 @@ SECRET_KEY = 'd%+n_)64^zepx#rg(3esl9+qpt7bvagj9e!+b&-%qogiwoqp00'
 DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'awwwprojekt.up.railway.app']
-CSRF_TRUSTED_ORIGINS = ['https://awwwprojekt.up.railway.app']
 
 
 # Application definition
@@ -140,6 +139,7 @@ SECURE_HSTS_SECONDS = 3600
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = ['https://awwwprojekt.up.railway.app']
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
