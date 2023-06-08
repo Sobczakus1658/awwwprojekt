@@ -27,7 +27,8 @@ SECRET_KEY = 'd%+n_)64^zepx#rg(3esl9+qpt7bvagj9e!+b&-%qogiwoqp00'
 # DEBUG = True
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'awwwprojekt.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://awwwprojekt.up.railway.app']
 
 
 # Application definition
