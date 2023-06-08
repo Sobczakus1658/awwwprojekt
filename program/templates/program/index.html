@@ -488,7 +488,7 @@
             for (var j = 0; j < katalog.podpliki.length; j++) {
               var podplik = katalog.podpliki[j];
               // var elementPodpliku = $('<li>').html("<a href='>" + podplik.nazwa + '</a>');
-
+                var elementPodpliku = $('<li>').html('<a href="https://awwwprojekt.up.railway.app/'+podplik.id+'">' + podplik.nazwa + '</a>');
               // podplikiContainer.append(elementPodpliku);
             }
             elementListy.append(podplikiContainer);
@@ -671,7 +671,7 @@
             for (var j = 0; j < katalog.podpliki.length; j++) {
               var podplik = katalog.podpliki[j];
               // var elementPodpliku = $('<li>').html("<a href='+ podplik.nazwa + '</a>');
-
+                var elementPodpliku = $('<li>').html('<a href="https://awwwprojekt.up.railway.app/'+podplik.id+'">' + podplik.nazwa + '</a>');
               // podplikiContainer.append(elementPodpliku);
             }
             elementListy.append(podplikiContainer);
@@ -820,7 +820,7 @@
             for (var j = 0; j < katalog.podpliki.length; j++) {
               var podplik = katalog.podpliki[j];
               // var elementPodpliku = $('<li>').html("<a href=>" + podplik.nazwa + '</a>');
-
+                var elementPodpliku = $('<li>').html('<a href="https://awwwprojekt.up.railway.app/'+podplik.id+'">' + podplik.nazwa + '</a>');
               // podplikiContainer.append(elementPodpliku);
             }
             elementListy.append(podplikiContainer);
@@ -916,6 +916,7 @@
             var podplikiContainer = $('<ul>');
             for (var j = 0; j < katalog.podpliki.length; j++) {
               var podplik = katalog.podpliki[j];
+              var elementPodpliku = $('<li>').html('<a href="https://awwwprojekt.up.railway.app/'+podplik.id+'">' + podplik.nazwa + '</a>');
               // var elementPodpliku = $('<li>').html("<a href='>" + podplik.nazwa + '</a>');
 
               // podplikiContainer.append(elementPodpliku);
@@ -1084,6 +1085,7 @@
               var podplik = katalog.podpliki[j];
               // var elementPodpliku = $('<li>').html("<a href= + podplik.nazwa + '</a>');
               // podplikiContainer.append(elementPodpliku);
+              var elementPodpliku = $('<li>').html('<a href="https://awwwprojekt.up.railway.app/'+podplik.id+'">' + podplik.nazwa + '</a>');
             }
             elementListy.append(podplikiContainer);
           } wynik += "<div class='asm-section'>"
