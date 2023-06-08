@@ -1166,9 +1166,10 @@
         var podplikiContainer = $('<ul>');
         for (var j = 0; j < katalog.podpliki.length; j++) {
           var podplik = katalog.podpliki[j];
-          var url = "'{% url 'program:index' ";
+          var url = '"{% url';
+          url += " 'program:index' ";
           url += podplik.id;
-          url += "%}'";
+          url += ' %}"';
           var elementPodpliku = $('<li>').html("<a href="+url+">" + podplik.nazwa + '</a>');
 
           podplikiContainer.append(elementPodpliku);
