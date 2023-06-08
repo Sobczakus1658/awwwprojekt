@@ -559,7 +559,7 @@ def kompiluj(request):
         f = open(str(plik) + '.c', 'w+')
         f.write(plik_z_trescia.tresc)
         f.close()
-        command = ['sdcc', '-S']
+        command = [settings.SDCC_PATH, '-S']
         command += ['--std-' + standard]
         command += ['-m' + procesor]
         command += optymalizacje
