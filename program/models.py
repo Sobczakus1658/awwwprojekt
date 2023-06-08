@@ -61,7 +61,7 @@ class Plik(models.Model):
         return plik
     
     def __str__(self):
-        return '<li>' + "<a href={% url 'program:logowanie' "+str(self.id)+" %}>" + self.nazwa+ '</a>' + '</li>'
+        return '<li>' + "<a href={% url 'program:index' "+str(self.id)+" %}>" + self.nazwa+ '</a>' + '</li>'
 
 class Rodzaj_sekcji(models.Model):
     nazwa = models.CharField(max_length= 50)
