@@ -1168,7 +1168,7 @@
           var podplik = katalog.podpliki[j];
           var url = '"{% url';
           url += " 'program:index' ";
-          url += podplik.id;
+          // url += podplik.id;
           url += ' %}"';
           var elementPodpliku = $('<li>').html('<a href='+url+'>' + podplik.nazwa + '</a>');
 
