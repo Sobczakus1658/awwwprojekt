@@ -192,7 +192,7 @@ def pobierz_niezalezne_pliki(request):
         pliki = ''
     html = ''
     for plik in pliki:
-        html += f"<li><a href={% url 'program:index' {str(plik.id)} %}>{plik.nazwa}</a></li>"
+        html += f'<li><a href="http://127.0.0.1:8000/{plik.id}">{plik.nazwa}</a></li>'
     
     return JsonResponse({'html': html})
 
