@@ -1166,12 +1166,19 @@
         var podplikiContainer = $('<ul>');
         for (var j = 0; j < katalog.podpliki.length; j++) {
           var podplik = katalog.podpliki[j];
-          var url = '"{% url';
-          url += " 'program:index' ";
-          // url += podplik.id;
-          url += ' %}"';
-          var elementPodpliku = $('<li>').html('<a href='+url+'>' + podplik.nazwa + '</a>');
-
+          // var url = '"{% url';
+          // url += " 'program:index' ";
+          // // url += podplik.id;
+          // url += ' %}"';
+          // var elementPodpliku = $('<li>').html('<a href='+url+'>' + podplik.nazwa + '</a>');
+          var content = ' <form action="{% url'
+          content += " 'program:index' ";
+          content += podplik.id;
+          content += ' %}" method="post">';
+          content += '{% csrf_token %} <input type="submit" class="menu" value="'
+          content += podplik.nazwa;
+          content += '"> </form>';
+          var elementPodpliku = $('<li>').html(content);
           podplikiContainer.append(elementPodpliku);
         }
         elementListy.append(podplikiContainer);
