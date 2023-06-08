@@ -1,0 +1,10 @@
+<form action="{% url 'program:usun_sekcje'%}" method="post">
+    Wybierz sekcje
+    <br>
+    {% csrf_token %}
+    {% for sekcja in sekcje%}
+    <input type="radio" name="sekcja" id="{{ sekcja.id }}" value="{{ sekcja.id }}">
+    <label for="{{ sekcja.id }}">{{ sekcja.opcjonalna_nazwa }}</label><br>
+    {% endfor %}
+    <input type="submit" value="Usun">
+</form>

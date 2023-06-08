@@ -1,0 +1,17 @@
+<form action="{% url 'program:stworz_katalog'%}" method="post">
+    Wybierz podkatalog
+    <br>
+    {% csrf_token %}
+    {%if katalogi %}
+        {% for katalog in katalogi%}
+        <input type="radio" name="rodzic" id="{{ katalog.id }}" value="{{ katalog.id }}">
+        <label for="{{ katalog.id }}">{{ katalog.nazwa }}</label><br>
+    {% endfor %}
+    {%endif%}
+    <input type="radio" name="rodzic" id = "0" value = "0">
+    <label for ="0" name ="rodzic"> Niezależny katalog</label><br>
+    Nazwa
+    <br>
+    <input name="nazwa">
+    <input type="submit" value="Dodaj">
+</form>

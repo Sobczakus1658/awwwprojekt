@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Projekt z AWWW </title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.js"></script>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'program/style.css' %}">
+  <link rel="stylesheet" href="{% static 'program/color.css' %}">
+  <!-- <script src="{%static 'program/javascript.js' %} "></script> -->
+
+  <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+  <script src="https://kit.fontawesome.com/f741e76120.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  {% csrf_token %}
+  <div id="page">
+    <div class="pasek_menu">
+      <div class="dropdown">
+        <button type="button" class="menu" onclick="rozwij_plik()" id="plik">plik</button>
+        <div class="dropdown-content" id="plikDropdown">
+          <form id="create-directory-form" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Stwórz katalog">
+          </form>
+          <form id="usuwanie_katalogu" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Usun katalog">
+          </form>
+          <form id="tworzenie_pliku" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Stworz plik">
+          </form>
+          {% if lista%}
+          <form id="usuwanie_pliku" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Usun plik">
+          </form>
+          {%endif %}
+          {% if lista %}
+          <form id="usuwanie_sekcji" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Usun sekcję">
+          </form>
+          {% endif %}
+          <form id="zapisz" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Zapisz">
+          </form>
+        </div>
+      </div>
+      {%if niezalogowany%}
+      {% csrf_token %}
+      <form action="{% url 'program:logowanie' %}" method="post">
+        {% csrf_token %}
+        <input type="submit" class=" menu" value="Zaloguj">
+      </form>
+      {%endif %}
+      {%if niezalogowany == False %}
+      <form action="{% url 'program:wylogowanie' %}" method="post">
+        {% csrf_token %}
+        <input type="submit" class="menu" value="Wyloguj">
+      </form>
+      {%endif %}
+      <button type="button" class="menu">edycja</button>
+      <button type="button" class="menu">opcje</button>
+      <div id="kompilacja" style="display: none;">
+        <form id="kompilacja_form" method="post">
+          {% csrf_token %}
+          <input type="submit" class="menu" value="Kompiluj">
+        </form>
+      </div>
+      <div id="pobierz" style="display: none;">
+        <form action="{% url 'program:pobierz' id_pliku %}" method="post">
+          {% csrf_token %}
+          <input type="submit" class="menu" value="Pobierz">
+        </form>
+      </div>
+    </div>
+
+    <div class="wybor_pliku">
+      <div id="katalogi-container"></div>
+      <ul id="pliki-container"></ul>
+    </div>
+    <div class="tekst_programu">
+      <div id="zawartosc"></div>
+      <div id="tworzenie_katalogu" class="wybor_srodek" style="display: none;">
+        <form id="stworz_katalog" method="post ">
+          <div id="katalogi-tworzenie"></div>
+        </form>
+        <button id="katalogi_anuluj">Anuluj</button>
+      </div>
+      <div id="tworzenie_nowego_pliku" class="wybor_srodek" style="display: none;">
+        <form id="stworz_plik" method="post" enctype="multipart/form-data">
+          <div id="pliki-tworzenie"></div>
+        </form>
+        <button id="pliki_anuluj">Anuluj</button>
+      </div>
+      <div id="usun_katalog" class="wybor_srodek" style="display: none;">
+        <form id="usun_wybrany_katalog" method="post">
+          <div id="wybrane_katalogi"></div>
+        </form>
+        <button id="katalog_usuwanie_anuluj">Anuluj</button>
+      </div>
+      <div id="usun_sekcje" class="wybor_srodek" style="display: none;">
+        <form id="usun_wybrana_sekcje" method="post">
+          <div id="wybrane_sekcje"></div>
+        </form>
+        <button id="sekcje_anuluj">Anuluj</button>
+      </div>
+    </div>
+    <aside class="fragment_kodu">
+      <div id="fragment_przyciski">
+        <button id="rozwin" class="przycisk_fragment">Rozwiń sekcje</button>
+        <button id="zwin" class="przycisk_fragment">Zwiń sekcje</button>
+      </div>
+      <pre id="fragment"></pre>
+    </aside>
+    <div class="pasek_zakladek">
+      <button type="button" class="trapez" id="standard" onclick="standard()">
+        <p>STANDARD</p>
+      </button>
+      <button type="button" class="trapez" id="optymalizacje" onclick="optymalizacje()">
+        <p>OPTYMALIZACJE</p>
+      </button>
+      <button type="button" class="trapez" id="procesor" onclick="procesor()">
+        <p>PROCESOR</p>
+      </button>
+      <button type="button" class="trapez" id="zalezne" onclick="zalezne()">
+        <p>ZALEŻNE</p>
+      </button>
+    </div>
+    <div class="dane" id="standard_dane">
+      <form id="mojFormularz_standard" method="post">
+        {% csrf_token %}
+        <input type="radio" name='standard' id="standardy1" value="c89">
+        <label for="standardy1">C89</label><br>
+        <input type="radio" name="standard" id="standardy2" value="c99">
+        <label for="standardy2">C99</label><br>
+        <input type="radio" name="standard" id="standardy3" value="c11">
+        <label for="standardy3">C11</label><br>
+        <input type="submit" value="Wybierz">
+      </form>
+    </div>
+    <div class="dane" id="optymalizacje_dane">
+      <form id="mojFormularz_optymalizacje" method="post">
+        {% csrf_token %}
+        <input type="checkbox" id="1" name="optymalizacje" value="--nogcse">
+        <label for="1">--nogcse</label><br>
+        <input type="checkbox" id="2" name="optymalizacje" value="--noinvariant">
+        <label for="2">--noinvariant</label><br>
+        <input type="checkbox" id="3" name="optymalizacje" value="--noinduction">
+        <label for="3">--noinduction</label><br>
+        <input type="submit" value="Wybierz">
+      </form>
+
+    </div>
+    <div class="dane" id="procesor_dane">
+      <form id="mojFormularz_procesor" method="post">
+        {% csrf_token %}
+        <input type="radio" name='procesor' id="procesor1" value="mcs51">
+        <label for="procesor1">MCS51</label><br>
+        <input type="radio" name="procesor" id="procesor2" value="z80">
+        <label for="procesor2">Z80</label><br>
+        <input type="radio" name="procesor" id="procesor3" value="ds390">
+        <label for="procesor3">DS390</label><br>
+        <input type="submit" value="Wybierz">
+      </form>
+    </div>
+    <div class="dane" id="zalezne_dane">
+      <form id="mojFormularz_zalezne" method="post">
+        <div class="zalezne_wybor" id="mcs51">
+          <input type="radio" name='zalezne' id="1" value="--model-small">
+          <label for="1">--model-small</label><br>
+          <input type="radio" name="zalezne" id="2" value="--model-medium">
+          <label for="2">--model-medium</label><br>
+          <input type="radio" name="zalezne" id="3" value="--model-large">
+          <label for="3">--model-large</label><br>
+          <input type="submit" value="Wybierz">
+        </div>
+        <div class="zalezne_wybor" id="z80">
+          <input type="radio" name='zalezne' id="4" value="--reverse-regs-iy">
+          <label for="4">--reserve-regs-iy</label><br>
+          <input type="radio" name="zalezne" id="5" value="--fno-omit-frame-pointer">
+          <label for="5">--fno-omit-frame-pointer</label><br>
+          <input type="radio" name="zalezne" id="6" value="--asm==ias">
+          <label for="6">--asm==isas</label><br>
+          <input type="submit" value="Wybierz">
+        </div>
+        <div class="zalezne_wybor" id="ds390">
+          <input type="radio" name='zalezne' id="7" value="--model-flat24">
+          <label for="7">--model-flat24</label><br>
+          <input type="radio" name="zalezne" id="8" value="--protect-sp-update">
+          <label for="8">--protect-sp-update</label><br>
+          <input type="radio" name="zalezne" id="9" value="--stack-probe">
+          <label for="9">--stack-probe</label><br>
+          <input type="submit" value="Wybierz">
+        </div>
+      </form>
+    </div>
+    <div>
+      {% csrf_token %}
+    </div>
+  </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.62.0/lib/codemirror.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.62.0/lib/codemirror.css">
+  <script>
+    function rozwij_plik() {
+      document.getElementById("plikDropdown").classList.toggle("show");
+    }
+    function standard() {
+      document.getElementById("standard_dane").style.display = "block";
+      document.getElementById("optymalizacje_dane").style.display = "none";
+      document.getElementById("procesor_dane").style.display = "none";
+      document.getElementById("zalezne_dane").style.display = "none";
+    }
+    function optymalizacje() {
+      document.getElementById("standard_dane").style.display = "none";
+      document.getElementById("optymalizacje_dane").style.display = "block";
+      document.getElementById("procesor_dane").style.display = "none";
+      document.getElementById("zalezne_dane").style.display = "none";
+    }
+    function procesor() {
+      document.getElementById("standard_dane").style.display = "none";
+      document.getElementById("optymalizacje_dane").style.display = "none";
+      document.getElementById("procesor_dane").style.display = "block";
+      document.getElementById("zalezne_dane").style.display = "none";
+    }
+    function zalezne() {
+      document.getElementById("standard_dane").style.display = "none";
+      document.getElementById("optymalizacje_dane").style.display = "none";
+      document.getElementById("procesor_dane").style.display = "none";
+      document.getElementById("zalezne_dane").style.display = "block";
+    }
+    // $('#katalog_usuwanie_anuluj').click(function (event) {
+    //   console.log("oo");
+    //   event.preventDefault();
+    //   $('#usun_katalog').hide();
+    // });
+    $('#katalog_usuwanie_anuluj').click(function (event) {
+      console.log("oo");
+      event.preventDefault();
+      $('#usun_katalog').hide();
+    });
+    $('#pliki_anuluj').click(function (event) {
+      event.preventDefault();
+      $('#tworzenie_nowego_pliku').hide();
+    });
+    $('#katalogi_anuluj').click(function (event) {
+      event.preventDefault();
+      $('#tworzenie_katalogu').hide();
+    });
+
+    $('#sekcje_anuluj').click(function (event) {
+      event.preventDefault();
+      $('#usun_sekcje').hide();
+    });
+
+
+    var formularz1 = document.getElementById("mojFormularz_standard");
+    formularz1.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      var poleInformacji = document.querySelector('input[name="standard"]:checked');
+      console.log(poleInformacji);
+      var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/zmien_zmienna", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.setRequestHeader("X-CSRFToken", csrfToken);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          var odpowiedz = JSON.parse(xhr.responseText);
+          console.log("Nowa wartość zmiennej: " + odpowiedz.nazwa);
+        }
+      };
+
+      xhr.onerror = function () {
+        console.log('Wystąpił błąd połączenia.');
+      };
+
+      var dane = {
+        "nazwa": poleInformacji.name,
+        "standard": poleInformacji.value
+      };
+      var jsonData = JSON.stringify(dane);
+
+      xhr.send(jsonData);
+    });
+    var formularz2 = document.getElementById("mojFormularz_procesor");
+    formularz2.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      var poleInformacji = document.querySelector('input[name="procesor"]:checked');
+
+      console.log(poleInformacji);
+      var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/zmien_zmienna", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.setRequestHeader("X-CSRFToken", csrfToken);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          var odpowiedz = JSON.parse(xhr.responseText);
+          console.log("Nowa wartość zmiennej: " + odpowiedz.nazwa);
+        }
+      };
+      var myVariableElement = document.getElementById('myVariableElement');
+      var variableElement = poleInformacji.value;
+      if (variableElement == "mcs51") {
+        document.getElementById("mcs51").style.display = "block";
+        document.getElementById("z80").style.display = "none";
+        document.getElementById("ds390").style.display = "none";
+      }
+      if (variableElement == "z80") {
+        document.getElementById("mcs51").style.display = "none";
+        document.getElementById("z80").style.display = "block";
+        document.getElementById("ds390").style.display = "none";
+      }
+      if (variableElement == "ds390") {
+        document.getElementById("mcs51").style.display = "none";
+        document.getElementById("z80").style.display = "none";
+        document.getElementById("ds390").style.display = "block";
+      }
+      xhr.onerror = function () {
+        console.log('Wystąpił błąd połączenia.');
+      };
+
+      var dane = {
+        "nazwa": poleInformacji.name,
+        "procesor": poleInformacji.value
+      };
+      var jsonData = JSON.stringify(dane);
+
+      xhr.send(jsonData);
+    });
+    var formularz3 = document.getElementById("mojFormularz_optymalizacje");
+    formularz3.addEventListener("submit", function (event) {
+      event.preventDefault(); // Zapobieganie domyślnej akcji formularza
+
+      var poleInformacji = document.querySelectorAll('input[name="optymalizacje"]:checked');
+      var opcje = Array.from(poleInformacji).map(function (informacje) {
+        return informacje.value;
+      });
+      var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/zmien_zmienna", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.setRequestHeader("X-CSRFToken", csrfToken);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          var odpowiedz = JSON.parse(xhr.responseText);
+          console.log("Nowa wartość zmiennej: " + odpowiedz.nazwa);
+        }
+      };
+      xhr.onerror = function () {
+        console.log('Wystąpił błąd połączenia.');
+      };
+      var wybraneOptymalizacje = Array.from(poleInformacji).map(function (pole) {
+        return pole.value;
+      });
+      var optymalizacje = wybraneOptymalizacje.join(", ");
+      console.log(opcje);
+      var dane = {
+        "nazwa": 'optymalizacje',
+        "optymalizacje": opcje,
+      };
+      var jsonData = JSON.stringify(dane);
+
+      xhr.send(jsonData);
+    });
+    var formularz4 = document.getElementById("mojFormularz_zalezne");
+    formularz4.addEventListener("submit", function (event) {
+      event.preventDefault();
+      var poleInformacji = document.querySelector('input[name="zalezne"]:checked');
+      console.log(poleInformacji);
+      var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/zmien_zmienna", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.setRequestHeader("X-CSRFToken", csrfToken);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          var odpowiedz = JSON.parse(xhr.responseText);
+          console.log("Nowa wartość zmiennej: " + odpowiedz.nazwa);
+        }
+      };
+
+      xhr.onerror = function () {
+        console.log('Wystąpił błąd połączenia.');
+      };
+
+      var dane = {
+        "nazwa": poleInformacji.name,
+        "zalezne": poleInformacji.value
+      };
+      var jsonData = JSON.stringify(dane);
+
+      xhr.send(jsonData);
+
+      $('#kompilacja').show();
+    });
+    $(document).ready(function () {
+      $('#create-directory-form').click(function () {
+        event.preventDefault();
+        $('#tworzenie_katalogu').show();
+      });
+      $('#usuwanie_katalogu').click(function () {
+        event.preventDefault();
+        $('#usun_katalog').show();
+      });
+
+
+
+      $('#zapisz').click(function () {
+        event.preventDefault();
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+        var formData = new FormData(this);
+        const zawartosc = document.getElementsByClassName("CodeMirror")[0].CodeMirror.getValue();
+        formData.append('zawartosc', zawartosc);
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        $.ajax({
+          url: '/zapisz_plik',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+          },
+
+        });
+      
+      
+      });
+
+
+
+
+      $('#usuwanie_sekcji').click(function () {
+        event.preventDefault();
+        $('#usun_sekcje').show();
+      });
+      $('#usuwanie_pliku').click(function () {
+        console.log("ooooo");
+        event.preventDefault();
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/usun_plik", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-CSRFToken", csrfToken);
+        var dane = {
+          "nazwa": ""
+        };
+        var jsonData = JSON.stringify(dane);
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              var response = JSON.parse(xhr.responseText);
+              // Obsłuż odpowiedź serwera tutaj
+              console.log(response);
+            } else {
+              console.error("Błąd żądania:", xhr.status);
+            }
+          }
+        };
+
+        xhr.send(jsonData);
+
+        function wypiszKatalog(katalog) {
+          var elementListy = $('<li>').text(katalog.nazwa);
+          if (katalog.podkatalogi.length > 0) {
+            var podkatalogiContainer = $('<ul>');
+            for (var i = 0; i < katalog.podkatalogi.length; i++) {
+              var podkatalog = katalog.podkatalogi[i];
+              var elementPodkatalogu = wypiszKatalog(podkatalog);
+              podkatalogiContainer.append(elementPodkatalogu);
+            }
+            elementListy.append(podkatalogiContainer);
+          }
+          if (katalog.podpliki.length > 0) {
+            var podplikiContainer = $('<ul>');
+            for (var j = 0; j < katalog.podpliki.length; j++) {
+              var podplik = katalog.podpliki[j];
+              var elementPodpliku = $('<li>').html('<a href="http://127.0.0.1:8000/' + podplik.id + '">' + podplik.nazwa + '</a>');
+              podplikiContainer.append(elementPodpliku);
+            }
+            elementListy.append(podplikiContainer);
+          }
+          $('#tworzenie_katalogu').hide();
+          $('#zawartosc').html('');
+          return elementListy;
+        }
+
+
+
+        $.ajax({
+          url: '/pobierz_niezalezne_pliki',
+          type: 'GET',
+          dataType: 'json',
+
+          success: function (response) {
+            var html = response.html;
+            $('#pliki-container').html(html);
+          },
+          error: function (xhr, status, error) {
+            console.error('Wystąpił błąd podczas pobierania danych:', error);
+          }
+        });
+        $.ajax({
+          url: '/pobierz_katalogi',
+          type: 'GET',
+          dataType: 'json',
+
+          success: function (response) {
+            var listaKatalogow = $('<ul>');
+            for (var i = 0; i < response.length; i++) {
+              var katalog = response[i];
+              var elementKatalogu = wypiszKatalog(katalog);
+              listaKatalogow.append(elementKatalogu);
+            }
+            $('#katalogi-container').html(listaKatalogow);
+          },
+          error: function (xhr, status, error) {
+            console.error('Wystąpił błąd podczas pobierania danych:', error);
+          }
+        });
+
+      });
+      $('#rozwin').click(function () {
+        var sekcje = document.getElementsByClassName("asm-tresc");
+        for (var i = 0; i < sekcje.length; i++) {
+          if (!sekcje[i].classList.contains("show")) {
+            sekcje[i].classList.add("show");
+          }
+        }
+      });
+      $('#zwin').click(function () {
+        var sekcje = document.getElementsByClassName("asm-tresc");
+        for (var i = 0; i < sekcje.length; i++) {
+          if (sekcje[i].classList.contains("show")) {
+            sekcje[i].classList.remove("show");
+          }
+        }
+      });
+      $('#tworzenie_pliku').click(function () {
+        event.preventDefault();
+        $('#tworzenie_nowego_pliku').show();
+      });
+      $('#anuluj-button').click(function () {
+        $('#tworzenie_katalogu').hide();
+      });
+
+      $('#kompilacja_form').click(function () {
+        event.preventDefault();
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/kompiluj", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-CSRFToken", csrfToken);
+        var dane = {
+          "nazwa": ""
+        };
+        var jsonData = JSON.stringify(dane);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            var odpowiedz = JSON.parse(xhr.responseText);
+            console.log("Standard output: " + odpowiedz.stdout);
+            console.log("Standard error: " + odpowiedz.stderr);
+            console.log("Status: " + odpowiedz.status);
+            if (odpowiedz.stderr.length > 0) {
+              $("#fragment").html(odpowiedz.stderr);
+            }
+            else {
+              $("#fragment").html(odpowiedz.stdout);
+              // $("#fragment").html(odpowiedz.stderr);
+            }
+            $('#pobierz').show();
+            document.getElementById("fragment_przyciski").classList.add("show")
+            var headers = document.getElementsByClassName("asm-section-header");
+            for (var i = 0; i < headers.length; i++) {
+              headers[i].addEventListener("click", (event) => {
+                id = event.target.id.split("_")[1];
+                document.getElementById("tresc_" + id).classList.toggle("show")
+              })
+            }
+          }
+        };
+        xhr.send(jsonData);
+      });
+      $('#usun_wybrana_sekcje').submit(function (event) {
+        event.preventDefault();
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+        var formData = new FormData(this);
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
+        console.log(formData);
+        $.ajax({
+          url: '/usun_sekcje',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+            $.ajax({
+              url: '/pobierz_sekcje',
+              type: 'GET',
+              dataType: 'json',
+              success: function (response) {
+
+                var html = response.html;
+                var zawartosc = response.zawartosc;
+                $('#wybrane_sekcje').html(html);
+                $('#zawartosc').html(zawartosc);
+              },
+              // error: function (xhr, status, error) {
+              // console.error('Wystąpił błąd podczas pobierania danych:', error);
+              // }
+            });
+            console.log('Żądanie wysłane pomyślnie');
+            console.log(response);
+
+          },
+          // error: function (xhr, status, error) {
+          // console.error('Wystąpił błąd podczas wysyłania żądania:', error);
+          // }
+        });
+
+        $('#usun_sekcje').hide();
+      });
+
+      $('#stworz_katalog').submit(function (event) {
+        event.preventDefault();
+        var formData = $(this).serializeArray();
+        var dane = {};
+        $.each(formData, function (index, field) {
+          dane[field.name] = field.value;
+        });
+
+        console.log(dane);
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/stworz_katalog", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-CSRFToken", csrfToken);
+        var dane_do_wyslania = {
+          "nazwa": dane['nazwa'],
+          "rodzic": dane['rodzic']
+        };
+        console.log(dane_do_wyslania);
+        xhr.send(JSON.stringify(dane_do_wyslania));
+        function wypiszKatalog(katalog) {
+          var elementListy = $('<li>').text(katalog.nazwa);
+          if (katalog.podkatalogi.length > 0) {
+            var podkatalogiContainer = $('<ul>');
+            for (var i = 0; i < katalog.podkatalogi.length; i++) {
+              var podkatalog = katalog.podkatalogi[i];
+              var elementPodkatalogu = wypiszKatalog(podkatalog);
+              podkatalogiContainer.append(elementPodkatalogu);
+            }
+            elementListy.append(podkatalogiContainer);
+          }
+          if (katalog.podpliki.length > 0) {
+            var podplikiContainer = $('<ul>');
+            for (var j = 0; j < katalog.podpliki.length; j++) {
+              var podplik = katalog.podpliki[j];
+              var elementPodpliku = $('<li>').html('<a href="http://127.0.0.1:8000/' + podplik.id + '">' + podplik.nazwa + '</a>');
+              podplikiContainer.append(elementPodpliku);
+            }
+            elementListy.append(podplikiContainer);
+          }
+          $('#tworzenie_katalogu').hide();
+          return elementListy;
+        }
+        xhr.onreadystatechange = function () {
+          $.ajax({
+            url: '/pobierz_do_usuwania_katalogu',
+            type: 'GET',
+            dataType: 'json',
+
+            success: function (response) {
+              var html = response.html;
+              $('#wybrane_katalogi').html(html);
+            },
+            // error: function (xhr, status, error) {
+            // console.error('Wystąpił błąd podczas pobierania danych:', error);
+            // }
+          });
+          $.ajax({
+            url: '/pobierz_katalogi',
+            type: 'GET',
+            dataType: 'json',
+
+            success: function (response) {
+              var listaKatalogow = $('<ul>');
+              for (var i = 0; i < response.length; i++) {
+                var katalog = response[i];
+                var elementKatalogu = wypiszKatalog(katalog);
+                listaKatalogow.append(elementKatalogu);
+              }
+              $('#katalogi-container').html(listaKatalogow);
+            },
+            // error: function (xhr, status, error) {
+            // console.error('Wystąpił błąd podczas pobierania danych:', error);
+            // }
+          });
+          $.ajax({
+            url: '/pobierz_do_tworzenia_katalogi',
+            type: 'GET',
+            dataType: 'json',
+
+            success: function (response) {
+              var html = response.html;
+              $('#katalogi-tworzenie').html(html);
+            },
+            // error: function (xhr, status, error) {
+            // console.error('Wystąpił błąd podczas pobierania danych:', error);
+            // }
+          });
+          $.ajax({
+            url: '/pobierz_do_tworzenia_pliku',
+            type: 'GET',
+            dataType: 'json',
+
+            success: function (response) {
+              var html = response.html;
+              $('#pliki-tworzenie').html(html);
+            },
+            // error: function (xhr, status, error) {
+            // console.error('Wystąpił błąd podczas pobierania danych:', error);
+            // }
+          });
+        };
+        $.ajax({
+          url: '/pobierz_do_usuwania_katalogu',
+          type: 'GET',
+          dataType: 'json',
+
+          success: function (response) {
+            var html = response.html;
+            $('#wybrane_katalogi').html(html);
+          },
+          // error: function (xhr, status, error) {
+          // console.error('Wystąpił błąd podczas pobierania danych:', error);
+          // }
+        });
+        $.ajax({
+          url: '/pobierz_katalogi',
+          type: 'GET',
+          dataType: 'json',
+
+          success: function (response) {
+            var listaKatalogow = $('<ul>');
+            for (var i = 0; i < response.length; i++) {
+              var katalog = response[i];
+              var elementKatalogu = wypiszKatalog(katalog);
+              listaKatalogow.append(elementKatalogu);
+            }
+            $('#katalogi-container').html(listaKatalogow);
+          },
+          // error: function (xhr, status, error) {
+          // console.error('Wystąpił błąd podczas pobierania danych:', error);
+          // }
+        });
+        $.ajax({
+          url: '/pobierz_do_tworzenia_katalogi',
+          type: 'GET',
+          dataType: 'json',
+
+          success: function (response) {
+            var html = response.html;
+            $('#katalogi-tworzenie').html(html);
+          },
+          // error: function (xhr, status, error) {
+          // console.error('Wystąpił błąd podczas pobierania danych:', error);
+          // }
+        });
+        $.ajax({
+          url: '/pobierz_do_tworzenia_pliku',
+          type: 'GET',
+          dataType: 'json',
+
+          success: function (response) {
+            var html = response.html;
+            $('#pliki-tworzenie').html(html);
+          },
+          // error: function (xhr, status, error) {
+          // console.error('Wystąpił błąd podczas pobierania danych:', error);
+          // }
+        });
+
+      });
+      $('#stworz_plik').submit(function (event) {
+        event.preventDefault();
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+        var formData = new FormData(this);
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
+        // Wysyłanie żądania AJAX do serwera
+        function wypiszKatalog(katalog) {
+          var elementListy = $('<li>').text(katalog.nazwa);
+          if (katalog.podkatalogi.length > 0) {
+            var podkatalogiContainer = $('<ul>');
+            for (var i = 0; i < katalog.podkatalogi.length; i++) {
+              var podkatalog = katalog.podkatalogi[i];
+              var elementPodkatalogu = wypiszKatalog(podkatalog);
+              podkatalogiContainer.append(elementPodkatalogu);
+            }
+            elementListy.append(podkatalogiContainer);
+          }
+          if (katalog.podpliki.length > 0) {
+            var podplikiContainer = $('<ul>');
+            for (var j = 0; j < katalog.podpliki.length; j++) {
+              var podplik = katalog.podpliki[j];
+              var elementPodpliku = $('<li>').html('<a href="http://127.0.0.1:8000/' + podplik.id + '">' + podplik.nazwa + '</a>');
+              podplikiContainer.append(elementPodpliku);
+            }
+            elementListy.append(podplikiContainer);
+          }
+          $('#tworzenie_katalogu').hide();
+          return elementListy;
+        }
+
+        $.ajax({
+          url: '/stworz_plik',  // Zastąp 'twoj_adres_url' odpowiednim adresem URL
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+            console.log('Żądanie wysłane pomyślnie');
+            console.log(response);
+
+            $.ajax({
+              url: '/pobierz_katalogi',
+              type: 'GET',
+              dataType: 'json',
+
+              success: function (response) {
+                var listaKatalogow = $('<ul>');
+                for (var i = 0; i < response.length; i++) {
+                  var katalog = response[i];
+                  var elementKatalogu = wypiszKatalog(katalog);
+                  listaKatalogow.append(elementKatalogu);
+                }
+                $('#katalogi-container').html(listaKatalogow);
+                $.ajax({
+                  url: '/pobierz_niezalezne_pliki',
+                  type: 'GET',
+                  dataType: 'json',
+
+                  success: function (response) {
+                    var html = response.html;
+                    $('#pliki-container').html(html);
+                  },
+                  // error: function (xhr, status, error) {
+                  // console.error('Wystąpił błąd podczas pobierania danych:', error);
+                  // }
+                });
+              },
+              error: function (xhr, status, error) {
+                console.error('Wystąpił błąd podczas pobierania danych:', error);
+              }
+            });
+          },
+
+          // error: function (xhr, status, error) {
+          // console.error('Wystąpił błąd podczas wysyłania żądania:', error);
+          // }
+        });
+        // $.ajax({
+        //   url: '/pobierz_niezalezne_pliki',
+        //   type: 'GET',
+        //   dataType: 'json',
+
+        //   success: function (response) {
+        //     var html = response.html;
+        //     $('#pliki-container').html(html);
+        //   },
+        //   // error: function (xhr, status, error) {
+        //     // console.error('Wystąpił błąd podczas pobierania danych:', error);
+        //   // }
+        // });
+
+
+      });
+      // Dodaj CSRF token do nagłówka żądania
+
+      $('#usun_wybrany_katalog').submit(function (event) {
+        event.preventDefault();
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+        var formData = new FormData(this);
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
+        // Wysyłanie żądania AJAX do serwera
+        function wypiszKatalog(katalog) {
+          var elementListy = $('<li>').text(katalog.nazwa);
+          if (katalog.podkatalogi.length > 0) {
+            var podkatalogiContainer = $('<ul>');
+            for (var i = 0; i < katalog.podkatalogi.length; i++) {
+              var podkatalog = katalog.podkatalogi[i];
+              var elementPodkatalogu = wypiszKatalog(podkatalog);
+              podkatalogiContainer.append(elementPodkatalogu);
+            }
+            elementListy.append(podkatalogiContainer);
+          }
+          if (katalog.podpliki.length > 0) {
+            var podplikiContainer = $('<ul>');
+            for (var j = 0; j < katalog.podpliki.length; j++) {
+              var podplik = katalog.podpliki[j];
+              var elementPodpliku = $('<li>').html('<a href="http://127.0.0.1:8000/' + podplik.id + '">' + podplik.nazwa + '</a>');
+              podplikiContainer.append(elementPodpliku);
+            }
+            elementListy.append(podplikiContainer);
+          }
+          $('#usun_katalog').hide();
+          return elementListy;
+        }
+        $.ajax({
+          url: '/usun_katalog',  // Zastąp 'twoj_adres_url' odpowiednim adresem URL
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+            $.ajax({
+              url: '/pobierz_katalogi',
+              type: 'GET',
+              dataType: 'json',
+
+              success: function (response) {
+                var listaKatalogow = $('<ul>');
+                for (var i = 0; i < response.length; i++) {
+                  var katalog = response[i];
+                  var elementKatalogu = wypiszKatalog(katalog);
+                  listaKatalogow.append(elementKatalogu);
+                }
+                $('#katalogi-container').html(listaKatalogow);
+
+                $.ajax({
+                  url: '/pobierz_do_usuwania_katalogu',
+                  type: 'GET',
+                  dataType: 'json',
+
+                  success: function (response) {
+                    var html = response.html;
+                    $('#wybrane_katalogi').html(html);
+                  },
+                  error: function (xhr, status, error) {
+                    console.error('Wystąpił błąd podczas pobierania danych:', error);
+                  }
+                });
+                $.ajax({
+                  url: '/pobierz_do_tworzenia_pliku',
+                  type: 'GET',
+                  dataType: 'json',
+
+                  success: function (response) {
+                    var html = response.html;
+                    $('#pliki-tworzenie').html(html);
+                  },
+
+                });
+                console.log(formData)
+
+                $.ajax({
+                  url: '/pobierz_niezalezne_pliki',
+                  type: 'GET',
+                  dataType: 'json',
+
+                  success: function (response) {
+                    var html = response.html;
+                    $('#pliki-container').html(html);
+                  },
+                  error: function (xhr, status, error) {
+                    console.error('Wystąpił błąd podczas pobierania danych:', error);
+                  }
+                });
+                $.ajax({
+                  url: '/pobierz_do_tworzenia_katalogi',
+                  type: 'GET',
+                  dataType: 'json',
+
+                  success: function (response) {
+                    var html = response.html;
+                    $('#katalogi-tworzenie').html(html);
+                  },
+                  error: function (xhr, status, error) {
+                    console.error('Wystąpił błąd podczas pobierania danych:', error);
+                  }
+                });
+
+
+
+              },
+              error: function (xhr, status, error) {
+                console.error('Wystąpił błąd podczas pobierania danych:', error);
+              }
+            });
+            console.log('Żądanie wysłane pomyślnie');
+            console.log(response);
+          },
+
+          error: function (xhr, status, error) {
+            console.error('Wystąpił błąd podczas wysyłania żądania:', error);
+          }
+        });
+
+        // $.ajax({
+        //   url: '/pobierz_do_usuwania_katalogu',
+        //   type: 'GET',
+        //   dataType: 'json',
+
+        //   success: function (response) {
+        //     var html = response.html;
+        //     $('#wybrane_katalogi').html(html);
+        //   },
+        //   error: function (xhr, status, error) {
+        //     console.error('Wystąpił błąd podczas pobierania danych:', error);
+        //   }
+        // });
+        // console.log(formData)
+
+        // $.ajax({
+        //   url: '/pobierz_niezalezne_pliki',
+        //   type: 'GET',
+        //   dataType: 'json',
+
+        //   success: function (response) {
+        //     var html = response.html;
+        //     $('#pliki-container').html(html);
+        //   },
+        //   error: function (xhr, status, error) {
+        //     console.error('Wystąpił błąd podczas pobierania danych:', error);
+        //   }
+        // });
+        // $.ajax({
+        //   url: '/pobierz_do_tworzenia_katalogi',
+        //   type: 'GET',
+        //   dataType: 'json',
+
+        //   success: function (response) {
+        //     var html = response.html;
+        //     $('#katalogi-tworzenie').html(html);
+        //   },
+        //   error: function (xhr, status, error) {
+        //     console.error('Wystąpił błąd podczas pobierania danych:', error);
+        //   }
+        // });
+
+
+      });
+
+      $('#usun_wybrany_plik').submit(function (event) {
+        event.preventDefault();
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+        var formData = new FormData(this);
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
+        // Wysyłanie żądania AJAX do serwera
+        function wypiszKatalog(katalog) {
+          var elementListy = $('<li>').text(katalog.nazwa);
+          if (katalog.podkatalogi.length > 0) {
+            var podkatalogiContainer = $('<ul>');
+            for (var i = 0; i < katalog.podkatalogi.length; i++) {
+              var podkatalog = katalog.podkatalogi[i];
+              var elementPodkatalogu = wypiszKatalog(podkatalog);
+              podkatalogiContainer.append(elementPodkatalogu);
+            }
+            elementListy.append(podkatalogiContainer);
+          }
+          if (katalog.podpliki.length > 0) {
+            var podplikiContainer = $('<ul>');
+            for (var j = 0; j < katalog.podpliki.length; j++) {
+              var podplik = katalog.podpliki[j];
+              var elementPodpliku = $('<li>').html('<a href="http://127.0.0.1:8000/' + podplik.id + '">' + podplik.nazwa + '</a>');
+              podplikiContainer.append(elementPodpliku);
+            }
+            elementListy.append(podplikiContainer);
+          } wynik += "<div class='asm-section'>"
+          $('#usun_katalog').hide();
+          return elementListy;
+        }
+        $.ajax({
+          url: '/usun_katalog',  // Zastąp 'twoj_adres_url' odpowiednim adresem URL
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+            console.log('Żądanie wysłane pomyślnie');
+            console.log(response);
+            $.ajax({
+              url: '/pobierz_katalogi',
+              type: 'GET',
+              dataType: 'json',
+
+              success: function (response) {
+                var listaKatalogow = $('<ul>');
+                for (var i = 0; i < response.length; i++) {
+                  var katalog = response[i];
+                  var elementKatalogu = wypiszKatalog(katalog);
+                  listaKatalogow.append(elementKatalogu);
+                }
+                $('#katalogi-container').html(listaKatalogow);
+              },
+            });
+
+            $.ajax({
+              url: '/pobierz_do_usuwania_katalogu',
+              type: 'GET',
+              dataType: 'json',
+
+              success: function (response) {
+                var html = response.html;
+                $('#wybrane_katalogi').html(html);
+              },
+            });
+            console.log(formData)
+
+            $.ajax({
+              url: '/pobierz_niezalezne_pliki',
+              type: 'GET',
+              dataType: 'json',
+
+              success: function (response) {
+                var html = response.html;
+                $('#pliki-container').html(html);
+              },
+            });
+            $.ajax({
+              url: '/pobierz_do_tworzenia_katalogi',
+              type: 'GET',
+              dataType: 'json',
+
+              success: function (response) {
+                var html = response.html;
+                $('#katalogi-tworzenie').html(html);
+              },
+            });
+          },
+        });
+      });
+    });
+    function wypiszKatalog(katalog) {
+      var elementListy = $('<li>').text(katalog.nazwa);
+      if (katalog.podkatalogi.length > 0) {
+        var podkatalogiContainer = $('<ul>');
+        for (var i = 0; i < katalog.podkatalogi.length; i++) {
+          var podkatalog = katalog.podkatalogi[i];
+          var elementPodkatalogu = wypiszKatalog(podkatalog);
+          podkatalogiContainer.append(elementPodkatalogu);
+        }
+        elementListy.append(podkatalogiContainer);
+      }
+      if (katalog.podpliki.length > 0) {
+        var podplikiContainer = $('<ul>');
+        for (var j = 0; j < katalog.podpliki.length; j++) {
+          var podplik = katalog.podpliki[j];
+          var elementPodpliku = $('<li>').html('<a href="http://127.0.0.1:8000/' + podplik.id + '">' + podplik.nazwa + '</a>');
+          podplikiContainer.append(elementPodpliku);
+        }
+        elementListy.append(podplikiContainer);
+      }
+      return elementListy;
+    }
+    $.ajax({
+      url: '/pobierz_do_usuwania_katalogu',
+      type: 'GET',
+      dataType: 'json',
+
+      success: function (response) {
+        var html = response.html;
+        $('#wybrane_katalogi').html(html);
+      },
+    });
+
+    $.ajax({
+      url: '/pobierz_katalogi',
+      type: 'GET',
+      dataType: 'json',
+
+      success: function (response) {
+        var listaKatalogow = $('<ul>');
+        for (var i = 0; i < response.length; i++) {
+          var katalog = response[i];
+          var elementKatalogu = wypiszKatalog(katalog);
+          listaKatalogow.append(elementKatalogu);
+        }
+        $('#katalogi-container').html(listaKatalogow);
+        var katalogi = response; // Przypisanie otrzymanej odpowiedzi do zmiennej katalogi
+      },
+    });
+    $.ajax({
+      url: '/pobierz_do_tworzenia_katalogi',
+      type: 'GET',
+      dataType: 'json',
+
+      success: function (response) {
+        var html = response.html;
+        $('#katalogi-tworzenie').html(html);
+      },
+    });
+    $.ajax({
+      url: '/pobierz_do_tworzenia_pliku',
+      type: 'GET',
+      dataType: 'json',
+
+      success: function (response) {
+        var html = response.html;
+        $('#pliki-tworzenie').html(html);
+      },
+
+    });
+    $.ajax({
+      url: '/pobierz_niezalezne_pliki',
+      type: 'GET',
+      dataType: 'json',
+
+      success: function (response) {
+        var html = response.html;
+        console.log(response.html)
+        $('#pliki-container').html(html);
+      },
+    });
+CodeMirror.defineMode("text/asm", function () {
+  var cKeywords = {
+    // ...
+  };
+
+  var asmSectionRules = [
+    {
+      regex: /__asm\b[\s\S]*?\b__endasm\b/g,
+      token: "asm-section"
+    }
+  ];
+
+  return {
+    startState: function () {
+      return { inAsmSection: false };
+    },
+    token: function (stream, state) {
+      if (stream.match(/^__asm\b/)) {
+        state.inAsmSection = true;
+        return "asm-section";
+      }
+
+      if (state.inAsmSection) {
+        if (stream.match(/^.*?__endasm\b/)) {
+          state.inAsmSection = false;
+        }
+        stream.skipToEnd();
+        return "asm-section";
+      }
+
+      // Inne reguły dla składni C
+      // ...
+
+      stream.next();
+      return null;
+    },
+    // Inne metody i właściwości dla analizatora składni C z obsługą sekcji asemblerowych
+    // ...
+  };
+});
+    $.ajax({
+      url: '/pobierz_sekcje',
+      type: 'GET',
+      dataType: 'json',
+
+      success: function (response) {
+        var html = response.html;
+        var zawartosc = response.zawartosc;
+
+        $('#wybrane_sekcje').html(html);
+        // $('#zawartosc').html(zawartosc);
+        $('#zawartosc').html('');
+        if (zawartosc != 'BRAK') {
+            CodeMirror(document.querySelector('#zawartosc'), {
+            lineNumbers: true,
+            tabSize: 4,
+            value: zawartosc,
+            mode: "text/asm",
+            theme: "default"
+          });
+        }
+        
+      },
+    });
+  </script>
+</body>
+
+
+</html>

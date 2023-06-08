@@ -1,0 +1,10 @@
+<form action="{% url 'program:usun_plik'%}" method="post">
+    Wybierz plik
+    <br>
+    {% csrf_token %}
+    {% for plik in pliki%}
+    <input type="radio" name="plik" id="{{ plik.id }}" value="{{ plik.id }}">
+    <label for="{{ plik.id }}">{{ plik.nazwa }}</label><br>
+    {% endfor %}
+    <input type="submit" value="Usun">
+</form>

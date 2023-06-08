@@ -1,0 +1,196 @@
+* {
+	margin: 0;
+	color: var(--kolor-czcionki);
+}
+pre {
+	white-space: pre-wrap;
+}
+#page {
+	display: grid;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	grid-template-areas: 
+		"Pasek_menu Pasek_menu Pasek_menu"
+		"Wybor_pliku Tekst_programu Fragment_kodu"
+		"Wybor_pliku Pasek_zakladek Pasek_zakladek"
+		"Wybor_pliku Dane Dane"
+	;
+	grid-template-rows: max-content 3fr max-content 1fr;
+ 	grid-template-columns: 2fr 5fr 3fr;
+}
+#wybor{
+	width:100%; 
+	height:100%;
+	border:0px;
+}
+.pasek_menu {
+	grid-area: Pasek_menu;
+	display: flex;
+	background-color: var(--kolor-pasku);
+}
+.menu{
+	width: 110px;
+	border-right: solid;
+	border-color: var(--kolor-pasku);
+	background-color: var(--kolor-zakladek); 
+	font-size:150%;
+}
+.menu p{ 
+	text-align: center;
+}
+.menu:hover {
+	background-color: var(--kolor-hover);
+}
+.wybor_pliku {
+	grid-area: Wybor_pliku;
+	background-color: var(--kolor-wyboru);
+}
+.tekst_programu {
+	overflow: auto;
+	grid-area: Tekst_programu;
+	background-color: var(--kolor-tekstu);
+}
+.fragment_kodu {
+	overflow: auto;
+	grid-area: Fragment_kodu;
+	background-color: var(--kolor-fragmentu);
+}
+.pasek_zakladek {
+	grid-area: Pasek_zakladek;
+	background-color: var(--kolor-paska-zakladek);
+	display: flex;
+	flex-wrap: nowrap;
+}
+.dane{
+	grid-area: Dane;
+	background-color: var(--kolor-dane);
+	display: none;
+}
+#standard_dane {
+	display: block;
+}
+.trapez{
+	/* width:120px; */
+	height: 100%;
+	border: none;
+	float:left;
+	position:relative;
+	background-color: var(--kolor-zakladek);
+	clip-path: polygon(15% 0, 85% 0, 100% 100%, 0 100%);
+	font-size:100%;
+
+}
+ul.lista{
+	list-style-type: circle;
+	padding-left:20px;
+}
+ul.podlista{
+	list-style-type: square;
+	padding-left:20px;
+}
+.trapez:hover {
+	background-color: var(--kolor-hover);
+}
+.trapez p{ 
+	text-align: center;
+	padding-left: 20px;
+	padding-right: 20px;
+	/* padding-inline: 20%; */
+}
+
+.dropdown {
+	z-index: 8;
+}
+.dropdown .block.menu{
+	cursor: pointer;
+	border: none;
+	outline: none;
+	margin: 0;
+	width: 110px;
+	position: relative;
+}
+.dropdown-content {
+	display: none;
+	position: absolute;
+	min-width: 160px;
+	z-index: 3;
+}
+.dropdown-content input {
+	float:none;
+	padding: 5px;
+	display: block;
+	text-align: left;
+	cursor: pointer;
+	border : none;
+	margin: 0;
+	width: 110px
+}
+.show{ 
+	display: block;
+}
+.asm-section:hover {
+    background-color: var(--kolor-hover);
+}
+.asm-section:hover .asm-section-header {
+    background-color: var(--kolor-zakladek);
+}
+.zalezne_wybor {
+	display: none;
+}
+.asm-tresc {
+	display: none;
+}
+.asm-tresc.show {
+	display: block;
+}
+#fragment_przyciski {
+	display: none;
+	position: sticky;
+	/* background-color: var(--kolor-zakladek);  */
+	top: 0px;
+	left: 0px;
+}
+.przycisk_fragment{
+	width: 50%;
+	background-color: var(--kolor-zakladek); 
+}
+#fragment_przyciski.show {
+	display: flex;
+}
+/* #zawartosc {
+	height: 100%; 
+} */
+#zawartosc .CodeMirror {
+	height: 100%;
+	width: 100%;
+	background-color: inherit;
+	color: #ff0000;
+}
+#zawartosc .CodeMirror-gutters {
+	background-color: var(--kolor-paska-zakladek);
+}
+#zawartosc .CodeMirror-linenumber {
+	color: #006600;
+}
+.cm-asm-section {
+	color: var(--kolor-paska-zakladek);
+}
+@media only screen and (max-width: 980px) and (max-height: 1800px) {
+	#page{
+	display: grid;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	grid-template-areas: 
+		"Pasek_menu"
+		"Wybor_pliku"
+		"Tekst_programu"
+		"Fragment_kodu"
+		"Pasek_zakladek"
+		"Dane"
+	;
+	grid-template-rows: max-content 5fr 15fr 6fr max-content 6fr;
+ 	grid-template-columns: 100%;
+	}
+  }

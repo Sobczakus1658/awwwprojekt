@@ -1,0 +1,10 @@
+<form action="{% url 'program:usun_katalog'%}" method="post">
+    Wybierz podkatalog
+    <br>
+    {% csrf_token %}
+    {% for katalog in katalogi%}
+    <input type="radio" name="katalog" id="{{ katalog.id }}" value="{{ katalog.id }}">
+    <label for="{{ katalog.id }}">{{ katalog.nazwa }}</label><br>
+    {% endfor %}
+    <input type="submit" value="Usun">
+</form>
