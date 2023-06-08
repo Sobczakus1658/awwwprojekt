@@ -24,8 +24,8 @@ SECRET_KEY = 'd%+n_)64^zepx#rg(3esl9+qpt7bvagj9e!+b&-%qogiwoqp00'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = False
+DEBUG = True
+#DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'awwwprojekt.up.railway.app']
 
